@@ -97,7 +97,6 @@ class _ViewAttachmentsPageState extends State<ViewAttachmentsPage> {
                 }),
           ),
         ],
-        brightness: Brightness.dark,
         title: StreamBuilder<int>(
             stream: bloc.changePageStream,
             builder: (context, AsyncSnapshot<int> snapshot) {
