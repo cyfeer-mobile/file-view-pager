@@ -112,7 +112,7 @@ class _PageItemState extends State<PageItem>
       android: AndroidInAppWebViewOptions(
         useWideViewPort: false,
         domStorageEnabled: true,
-        useHybridComposition: true,
+        useHybridComposition: false,
       ),
       ios: IOSInAppWebViewOptions(
         allowsInlineMediaPlayback: true,
