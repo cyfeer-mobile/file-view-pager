@@ -17,11 +17,22 @@ class DownloadManager(var context: Context) {
     var resultMethodChannel: MethodChannel.Result? = null
 
     public fun registerBroadcast() {
-        context.registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(
+                onDownloadComplete,
+                IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+                Context.RECEIVER_EXPORTED
+            )
+        } else {
+            context.registerReceiver(
+                onDownloadComplete,
+                IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+            )
+        }
     }
 
     public fun unregisterBroadcast() {
-        context. unregisterReceiver(onDownloadComplete)
+        context.unregisterReceiver(onDownloadComplete)
     }
 
     private val onDownloadComplete: BroadcastReceiver = object : BroadcastReceiver() {
@@ -35,17 +46,18 @@ class DownloadManager(var context: Context) {
     }
 
     public fun downloadFile(url: String) {
-        val fileName= url.getFileName()
+        val fileName = url.getFileName()
         var request = DownloadManager.Request(Uri.parse(url))
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            request = request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+            request =
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
         }
         val downloadManager = context.getSystemService(DOWNLOAD_SERVICE) as DownloadManager
         lastDownloadId = downloadManager.enqueue(request)
     }
 
-    private fun String.getFileName() : String {
+    private fun String.getFileName(): String {
         if (this.isEmpty()) return ""
         val strArray: Array<String> = this.split("/".toRegex()).toTypedArray()
         return strArray[strArray.size - 1]
