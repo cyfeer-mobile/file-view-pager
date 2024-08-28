@@ -7,6 +7,7 @@ import android.content.Context.DOWNLOAD_SERVICE
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import io.flutter.plugin.common.MethodChannel
 
@@ -35,9 +36,11 @@ class DownloadManager(var context: Context) {
 
     public fun downloadFile(url: String) {
         val fileName= url.getFileName()
-        val request = DownloadManager.Request(Uri.parse(url))
+        var request = DownloadManager.Request(Uri.parse(url))
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            request = request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+        }
         val downloadManager = context.getSystemService(DOWNLOAD_SERVICE) as DownloadManager
         lastDownloadId = downloadManager.enqueue(request)
     }

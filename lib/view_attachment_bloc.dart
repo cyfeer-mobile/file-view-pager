@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'data_attachments.dart';
 import 'extension.dart';
 
-enum DownloadState { IDLE, LOADING}
+enum DownloadState { IDLE, LOADING, ERROR }
 
 class ViewAttachmentsBloc {
   DataAttachments initDataViewAttachments;
@@ -27,7 +27,8 @@ class ViewAttachmentsBloc {
   get changePageStream =>
       _changePageStreamController.stream.asBroadcastStream();
 
-  Stream<DownloadState> get downloadStream => _downloadStreamController.stream.asBroadcastStream();
+  Stream<DownloadState> get downloadStream =>
+      _downloadStreamController.stream.asBroadcastStream();
 
   void changePage(int position) {
     currentPosition = position;
@@ -36,14 +37,18 @@ class ViewAttachmentsBloc {
 
   void startDownload() async {
     _downloadStreamController.sink.add(DownloadState.LOADING);
-    var result = await _channel.invokeMethod('downloadFile', {"url": initDataViewAttachments.listAttachment[currentPosition]});
+    var result = await _channel.invokeMethod('downloadFile',
+        {"url": initDataViewAttachments.listAttachment[currentPosition]});
     if (result) {
       _downloadStreamController.sink.add(DownloadState.IDLE);
+    } else {
+      _downloadStreamController.sink.add(DownloadState.ERROR);
     }
   }
 
-  get currentPositionDisplay => "${currentPosition + 1}/${initDataViewAttachments.listAttachment.length}";
+  get currentPositionDisplay =>
+      "${currentPosition + 1}/${initDataViewAttachments.listAttachment.length}";
 
-  get currentFileName => initDataViewAttachments.listAttachment[currentPosition].fileName;
-
+  get currentFileName =>
+      initDataViewAttachments.listAttachment[currentPosition].fileName;
 }

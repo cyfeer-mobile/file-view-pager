@@ -10,6 +10,10 @@ import Foundation
 class DownloadManager {
     
     func downloadFile(url: String, result: @escaping (Bool) -> ()) {
+        guard let parseUrl = URL(string: url) else {
+            result(false)
+            return
+        }
         if (url.isImage) {
             getData(from: URL(string: url)!) { data, response, error in
                 guard let data = data, error == nil else {
