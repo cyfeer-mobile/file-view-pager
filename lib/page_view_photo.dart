@@ -85,7 +85,10 @@ class _PageViewAttachmentState extends State<PageViewAttachment> {
       //     ? false
       //     : true;
 
-      _isLock = (scaleState == PhotoViewScaleState.zoomedIn) ? true : false;
+      _isLock = (scaleState == PhotoViewScaleState.zoomedIn ||
+              scaleState == PhotoViewScaleState.covering)
+          ? true
+          : false;
     });
   }
 }
@@ -104,19 +107,14 @@ class PageItem extends StatefulWidget {
 class _PageItemState extends State<PageItem>
     with AutomaticKeepAliveClientMixin<PageItem> {
   late InAppWebViewController webViewController;
-  InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
-      crossPlatform: InAppWebViewOptions(
-        useShouldOverrideUrlLoading: true,
-        mediaPlaybackRequiresUserGesture: false,
-      ),
-      android: AndroidInAppWebViewOptions(
-        useWideViewPort: false,
-        domStorageEnabled: true,
-        useHybridComposition: false,
-      ),
-      ios: IOSInAppWebViewOptions(
-        allowsInlineMediaPlayback: true,
-      ));
+  InAppWebViewSettings options = InAppWebViewSettings(
+    useShouldOverrideUrlLoading: true,
+    mediaPlaybackRequiresUserGesture: false,
+    useWideViewPort: false,
+    domStorageEnabled: true,
+    useHybridComposition: false,
+    allowsInlineMediaPlayback: true,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -138,23 +136,26 @@ class _PageItemState extends State<PageItem>
 
   Widget getWebViewInApp(String url) {
     return InAppWebView(
-      initialUrlRequest: URLRequest(url: Uri.parse(url)),
-      initialOptions: options,
+      initialUrlRequest: URLRequest(url: WebUri(url)),
+      initialSettings: options,
       onWebViewCreated: (controller) {
         webViewController = controller;
       },
-      androidOnPermissionRequest: (controller, origin, resources) async {
-        return PermissionRequestResponse(
-            resources: resources,
-            action: PermissionRequestResponseAction.GRANT);
+      onPermissionRequest: (controller, request) async {
+        return PermissionResponse(
+            resources: request.resources,
+            action: PermissionResponseAction.GRANT);
       },
       onConsoleMessage: (controller, consoleMessage) {
         print(consoleMessage);
       },
+      shouldOverrideUrlLoading: (controller, action) async {
+        return NavigationActionPolicy.ALLOW;
+      },
       onLoadStop: (controller, urlLoad) async {
         String title = (await controller.getTitle()) ?? "";
         if (title.isEmpty) {
-          controller.loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
+          controller.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
         }
         // if (controller.getTitle().)
         // webViewController.loadUrl(urlRequest: URLRequest(url: Uri.parse("javascript:(function() { " +
