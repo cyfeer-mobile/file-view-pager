@@ -40,6 +40,23 @@ class _ViewAttachmentsPageState extends State<ViewAttachmentsPage> {
           duration: const Duration(seconds: 3),
         ));
       }
+
+      if (event == DownloadState.ERROR) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Container(
+            child: Text(
+              widget.dataAttachments.contentFail,
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xFFE12D39),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          backgroundColor: Color(0xFFFFEAEB),
+          duration: const Duration(seconds: 3),
+        ));
+      }
     });
   }
 
@@ -74,7 +91,8 @@ class _ViewAttachmentsPageState extends State<ViewAttachmentsPage> {
                           child: SizedBox(
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: new AlwaysStoppedAnimation<Color>(
+                                  Colors.white),
                             ),
                             width: 19,
                             height: 19,
@@ -97,7 +115,6 @@ class _ViewAttachmentsPageState extends State<ViewAttachmentsPage> {
                 }),
           ),
         ],
-        brightness: Brightness.dark,
         title: StreamBuilder<int>(
             stream: bloc.changePageStream,
             builder: (context, AsyncSnapshot<int> snapshot) {
